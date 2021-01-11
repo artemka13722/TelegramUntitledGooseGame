@@ -5,7 +5,7 @@ class Actions
     Goose.show_goose(message, bot)
     kb = []
     Action.all.each do |action|
-      kb.push(Telegram::Bot::Types::InlineKeyboardButton.new(text: "#{action.name}", callback_data: "#{action.name}"))
+      kb.push(Telegram::Bot::Types::InlineKeyboardButton.new(text: "#{action.name_show}", callback_data: "#{action.name_action}"))
     end
     kb.push(Telegram::Bot::Types::InlineKeyboardButton.new(text: 'Меню', callback_data: 'menu'))
     markup = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: kb)

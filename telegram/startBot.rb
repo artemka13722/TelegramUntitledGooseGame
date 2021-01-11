@@ -8,10 +8,15 @@ token = '1410455276:AAEMJvxHgeqI426SHgeiQoSVwXjJ7EjU9nY'
 
 Telegram::Bot::Client.run(token) do |bot|
   bot.listen do |message|
-
     case message
     when Telegram::Bot::Types::CallbackQuery
       user = User.find_or_create_by(telegram_id: message.from.id)
+      Action.all.each do |action|
+        if action.name_action == message.data
+          #тут нужно обработчик действий
+          bot.api.send_message(chat_id: message.from.id, text: "ОБНАРУЖЕНО ДЕЙСТВИЕ #{action.name_show}")
+        end
+      end
       case message.data
       when 'new_game'
         Actions.create_goose(message, bot)
@@ -21,6 +26,11 @@ Telegram::Bot::Client.run(token) do |bot|
         Menu.showMenu(message, bot)
       when 'goose_stats'
         Goose.show_goose(message, bot)
+      when 'delete_all_goose'
+        user.goose.delete_all
+        user.save
+        bot.api.send_message(chat_id: message.from.id, text: 'Все сохранения удалены')
+        Menu.showMenu(message, bot)
       else
         goose = Goose.find_by(name: message.data)
         if goose.nil?

@@ -16,7 +16,8 @@ ActiveRecord::Schema.define(version: 2021_01_11_091036) do
   enable_extension "plpgsql"
 
   create_table "actions", force: :cascade do |t|
-    t.string "name"
+    t.string "name_show"
+    t.string "name_action"
     t.integer "fun"
     t.integer "mana"
     t.integer "health"

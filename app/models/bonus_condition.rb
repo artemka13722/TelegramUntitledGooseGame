@@ -1,0 +1,2 @@
+class BonusCondition < ApplicationRecord
+end
