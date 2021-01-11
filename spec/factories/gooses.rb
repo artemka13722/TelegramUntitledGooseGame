@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :goose do
-    name { "MyString" }
+    name { 'MyString' }
     fun { 1 }
     mana { 1 }
     health { 1 }
