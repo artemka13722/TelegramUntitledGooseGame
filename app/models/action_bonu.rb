@@ -1,2 +1,0 @@
-class ActionBonu < ApplicationRecord
-end
