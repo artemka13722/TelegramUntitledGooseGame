@@ -1,8 +1,11 @@
 require_relative '../core/engine'
+require_relative '../core/goose_manager'
+require_relative '../core/action_manager'
 require_relative 'screen'
 
 class Application
   def initialize(bot)
+    @engine = Engine.new
     @bot = bot
     @bot.listen do |message|
       case message
@@ -33,13 +36,13 @@ class Application
     when 'game_menu'
       Screen.show_game_menu(message, @bot)
     when 'game_menu_exit'
-      Engine.save_goose(message.from.id)
+      @engine.goose_manager.save_goose(message.from.id)
       Screen.show_start_menu(message, @bot)
     when 'game_menu_stat'
-      Screen.show_goose(message, @bot, Engine.get_goose(message.from.id))
+      Screen.show_goose(message, @bot, @engine.goose_manager.get_goose(message.from.id))
       Screen.show_game_menu(message, @bot)
     when 'game_menu_save'
-      Engine.save_goose(message.from.id)
+      @engine.goose_manager.save_goose(message.from.id)
       Screen.show_toast(message, @bot, 'Сохранено')
       Screen.show_game_menu(message, @bot)
     when 'game_menu_goose_change'
@@ -50,16 +53,16 @@ class Application
   end
 
   def action_handler(message)
-    action = Engine.get_action_by_name(message.data)
+    action = @engine.action_manager.get_action_by_name(message.data)
     if action.nil?
       Screen.show_toast(message, @bot, 'Неизвестное действие')
     else
       Screen.show_toast(message, @bot, 'Запуск действия')
-      action_message = Engine.run_action(message.from.id, action)
+      action_message = @engine.action_manager.run_action(message.from.id, action)
       Screen.show_toast(message, @bot, action_message) unless action_message.nil?
     end
-    Screen.show_goose(message, @bot, Engine.get_goose(message.from.id))
-    Screen.show_actions(message, @bot, Engine.actions)
+    Screen.show_goose(message, @bot, @engine.goose_manager.get_goose(message.from.id))
+    Screen.show_actions(message, @bot, @engine.action_manager.actions)
   end
 
   def start_menu_handler(message)
@@ -77,14 +80,14 @@ class Application
 
   def load_game(message)
     goose = listen_goose_name(message)
-    unless goose.nil?
-      Screen.show_goose(message, @bot, goose)
-      Screen.show_actions(message, @bot, Engine.actions)
-    end
+    return if goose.nil?
+
+    Screen.show_goose(message, @bot, goose)
+    Screen.show_actions(message, @bot, @engine.action_manager.actions)
   end
 
   def listen_goose_name(message)
-    Screen.show_geese(message.from.id, @bot, Engine.load_geese(message.from.id))
+    Screen.show_geese(message.from.id, @bot, @engine.goose_manager.load_geese(message.from.id))
     @bot.listen do |msg|
       case msg
       when Telegram::Bot::Types::CallbackQuery
@@ -96,7 +99,7 @@ class Application
           Screen.show_start_menu(msg, @bot)
           return nil
         end
-        goose = Engine.load_goose(msg.from.id, msg.data)
+        goose = @engine.goose_manager.load_goose(msg.from.id, msg.data)
         Screen.show_toast(msg, @bot, 'Гусь не найден :(') if goose.nil?
         return goose
       else
@@ -106,7 +109,7 @@ class Application
   end
 
   def delete_all_goose(message)
-    Engine.delete_all_goose(message.from.id)
+    @engine.goose_manager.delete_all_goose(message.from.id)
     Screen.show_toast(message, @bot, 'Все сохранения удалены')
     Screen.show_start_menu(message, @bot)
   end
@@ -114,10 +117,10 @@ class Application
   def start_new_game(message)
     name = listen_name(message)
     level = listen_level(message)
-    Engine.create_goose(message.from.id, name, level)
-    goose = Engine.get_goose(message.from.id)
+    @engine.goose_manager.create_goose(message.from.id, name, level)
+    goose = @engine.goose_manager.get_goose(message.from.id)
     Screen.show_goose(message, @bot, goose)
-    Screen.show_actions(message, @bot, Engine.actions)
+    Screen.show_actions(message, @bot, @engine.action_manager.actions)
   end
 
   def listen_level(message)
@@ -134,7 +137,7 @@ class Application
 
   def listen_name(message)
     Screen.show_toast(message, @bot, 'Введите имя гуся')
-    geese_names = Engine.load_geese_names
+    geese_names = @engine.goose_manager.load_geese_names
     @bot.listen do |msg|
       case msg
       when Telegram::Bot::Types::Message
