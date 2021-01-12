@@ -1,4 +1,4 @@
-require_relative 'engine'
+require_relative '../core/engine'
 require_relative 'screen'
 
 class Application
@@ -22,9 +22,30 @@ class Application
     elsif message.data.include?('menu_level')
       level_menu_handler(message)
     elsif message.data.include?('game_menu')
-      Screen.show_toast(message, @bot, 'game_menu')
+      game_menu_handler(message)
     elsif message.data.include?('action')
       action_handler(message)
+    end
+  end
+
+  def game_menu_handler(message)
+    case message.data
+    when 'game_menu'
+      Screen.show_game_menu(message, @bot)
+    when 'game_menu_exit'
+      Engine.save_goose(message.from.id)
+      Screen.show_start_menu(message, @bot)
+    when 'game_menu_stat'
+      Screen.show_goose(message, @bot, Engine.get_goose(message.from.id))
+      Screen.show_game_menu(message, @bot)
+    when 'game_menu_save'
+      Engine.save_goose(message.from.id)
+      Screen.show_toast(message, @bot, 'Сохранено')
+      Screen.show_game_menu(message, @bot)
+    when 'game_menu_goose_change'
+      load_game(message)
+    else
+      Screen.show_toast(message, @bot, 'Неизвестная команда')
     end
   end
 
@@ -34,8 +55,10 @@ class Application
       Screen.show_toast(message, @bot, 'Неизвестное действие')
     else
       Screen.show_toast(message, @bot, 'Запуск действия')
-      Engine.run_action(action)
+      action_message = Engine.run_action(message.from.id, action)
+      Screen.show_toast(message, @bot, action_message) unless action_message.nil?
     end
+    Screen.show_goose(message, @bot, Engine.get_goose(message.from.id))
     Screen.show_actions(message, @bot, Engine.actions)
   end
 
@@ -47,8 +70,6 @@ class Application
       start_new_game(message)
     when 'start_menu_load_game'
       load_game(message)
-    when 'start_menu_delete_all_goose'
-      delete_all_goose(message)
     else
       Screen.show_toast(message, @bot, 'Неизвестная команда')
     end
@@ -56,9 +77,7 @@ class Application
 
   def load_game(message)
     goose = listen_goose_name(message)
-    if goose.nil?
-      Screen.show_start_menu(message, @bot)
-    else
+    unless goose.nil?
       Screen.show_goose(message, @bot, goose)
       Screen.show_actions(message, @bot, Engine.actions)
     end
@@ -69,6 +88,14 @@ class Application
     @bot.listen do |msg|
       case msg
       when Telegram::Bot::Types::CallbackQuery
+        case msg.data
+        when 'delete_all_goose'
+          delete_all_goose(msg)
+          return nil
+        when 'start_menu'
+          Screen.show_start_menu(msg, @bot)
+          return nil
+        end
         goose = Engine.load_goose(msg.from.id, msg.data)
         Screen.show_toast(msg, @bot, 'Гусь не найден :(') if goose.nil?
         return goose
@@ -110,7 +137,7 @@ class Application
     geese_names = Engine.load_geese_names
     @bot.listen do |msg|
       case msg
-      when Telegram::Bot::Types::CallbackQuery
+      when Telegram::Bot::Types::Message
         return msg.text if geese_names.exclude?(msg.text)
 
         Screen.show_toast(msg, @bot, 'Данное имя уже занято. Придумайте другое')

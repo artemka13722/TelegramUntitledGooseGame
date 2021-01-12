@@ -4,8 +4,18 @@ class Screen
   def self.show_start_menu(message, bot)
     menu_bottoms = [
       View.button('Новая игра', 'start_menu_new_game'),
-      View.button('Загрузить игру', 'start_menu_load_game'),
-      View.button('Удалить все сохранения', 'start_menu_delete_all_goose')
+      View.button('Загрузить игру', 'start_menu_load_game')
+    ]
+
+    bot.api.send_message(chat_id: message.from.id, text: 'UntitledGooseGame', reply_markup: View.markup(menu_bottoms))
+  end
+
+  def self.show_game_menu(message, bot)
+    menu_bottoms = [
+      View.button('Выйти', 'game_menu_exit'),
+      View.button('Статистика', 'game_menu_stat'),
+      View.button('Сохранить', 'game_menu_save'),
+      View.button('Сменить гуся', 'game_menu_goose_change')
     ]
 
     bot.api.send_message(chat_id: message.from.id, text: 'Выберете действие', reply_markup: View.markup(menu_bottoms))
@@ -24,6 +34,9 @@ class Screen
   def self.show_geese(id, bot, geese)
     menu_bottoms = []
     geese.each { |goose| menu_bottoms.push(View.button(goose.name.to_s, goose.name.to_s)) }
+
+    menu_bottoms.push(View.button('Удалить все сохранения', 'delete_all_goose')) unless geese.empty?
+
     menu_bottoms.push(View.button('Меню', 'start_menu'))
     if geese.empty?
       bot.api.send_message(
