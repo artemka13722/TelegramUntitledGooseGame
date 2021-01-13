@@ -52,7 +52,7 @@ class GooseManager
   end
 
   def load_geese(id)
-    user = User.find_by(telegram_id: id)
+    user = User.find_or_create_by(telegram_id: id)
     user.goose
   end
 
