@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:postgresql://localhost:5432/telegram_dev</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="telegram_dev@35.228.61.85" uuid="2a067a37-1e11-4932-8e09-6b576a99c39f">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://35.228.61.85:5432/telegram_dev</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

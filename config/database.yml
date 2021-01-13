@@ -8,8 +8,9 @@ default: &default
   adapter: postgresql
   pool: 5
   timeout: 5000
-  username: # TODO
-  password:  # TODO
+  username: telegram
+  password: telegram
+  host: 35.228.61.85
 
 development:
   <<: *default
