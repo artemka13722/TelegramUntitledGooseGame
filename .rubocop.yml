@@ -4,6 +4,8 @@ require:
 
 AllCops:
   NewCops: enable
+  Exclude:
+    - 'spec/**'
 
 Style/Documentation:
   Enabled: false

@@ -95,7 +95,7 @@ class GooseManager
   end
 
   def check_fun(goose)
-    status = goose.weariness < 100
+    status = goose.fun.positive?
     message = nil
     message = "У вашего гуся #{goose.name}, появились суецидальные мысли..." unless status
     [status, message]
