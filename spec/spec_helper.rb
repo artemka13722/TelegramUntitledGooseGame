@@ -27,7 +27,9 @@ RSpec.configure do |config|
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.
   config.before :suite do
-    ActiveRecord::Base.establish_connection(YAML.load(File.open(File.expand_path('./../config/database.yml', __dir__)))['test'])
+    database_config_file = File.open(File.expand_path('./../config/database.yml', __dir__))
+    database_config_test = YAML.safe_load(database_config_file)['test']
+    ActiveRecord::Base.establish_connection(database_config_test)
   end
   config.expect_with :rspec do |expectations|
     # This option will default to `true` in RSpec 4. It makes the `description`
