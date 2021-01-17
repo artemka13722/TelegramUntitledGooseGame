@@ -23,8 +23,8 @@ RSpec.describe ActionManager do
     it {
       expect(mng).to respond_to(:add_bonus).with(2).argument
     }
-	
-	it {
+
+    it {
       expect(mng).to respond_to(:add_bonuses).with(2).argument
     }
   end
