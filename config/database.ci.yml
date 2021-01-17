@@ -8,8 +8,8 @@ default: &default
   adapter: postgresql
   pool: 5
   timeout: 5000
-  username: telegram
-  password: telegram
+  username: test
+  password: test
   host: 35.228.61.85
 
 # Warning: The database defined as "test" will be erased and
