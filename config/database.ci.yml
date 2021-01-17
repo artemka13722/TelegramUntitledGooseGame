@@ -8,12 +8,9 @@ default: &default
   adapter: postgresql
   pool: 5
   timeout: 5000
-  username: test
-  password:  test
-
-development:
-  <<: *default
-  database: telegram_dev
+  username: telegram
+  password: telegram
+  host: 35.228.61.85
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -22,6 +19,3 @@ test:
   <<: *default
   database: telegram_test
 
-production:
-  <<: *default
-  database: telegram_dev
