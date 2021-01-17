@@ -23,6 +23,10 @@ RSpec.describe GooseManager do
     }
 
     it {
+      expect(goose_easy.alive).to be true
+    }
+
+    it {
       expect(goose_easy.fun).to eq(100)
     }
 
@@ -188,6 +192,39 @@ RSpec.describe GooseManager do
 
     it {
       expect(message_money2).to eq('За вашим гусем goose, выехали коллекторы...')
+    }
+  end
+
+  describe 'Checking goose stat changer' do
+    mng = described_class.new
+    mng.create_goose(1488, 'goose', 'easy')
+    goose = mng.get_goose(1488)
+    mng.create_goose(1489, 'mod', 'easy')
+    mod = mng.get_goose(1489)
+    mod.health = -1
+    mod.mana = 2
+    mod.fun = -3
+    mod.weariness = 4
+    mod.money = 5
+    mng.add_changes(goose, mod)
+    it {
+      expect(goose.health).to eq(99)
+    }
+
+    it {
+      expect(goose.mana).to eq(2)
+    }
+
+    it {
+      expect(goose.fun).to eq(97)
+    }
+
+    it {
+      expect(goose.weariness).to eq(4)
+    }
+
+    it {
+      expect(goose.money).to eq(105)
     }
   end
 end

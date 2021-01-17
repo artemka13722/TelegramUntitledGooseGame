@@ -14,13 +14,8 @@
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 require File.expand_path('../config/environment', __dir__)
-ENV['RAILS_ENV'] = 'test'
-
 require 'simplecov'
-SimpleCov.start do
-  add_filter '/spec/'
-end
-SimpleCov.minimum_coverage 90
+ENV['RAILS_ENV'] = 'test'
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
@@ -28,7 +23,7 @@ RSpec.configure do |config|
   # assertions if you prefer.
   config.before :suite do
     database_config_file = File.open(File.expand_path('./../config/database.yml', __dir__))
-    database_config_test = YAML.safe_load(database_config_file)['test']
+    database_config_test = Psych.load_file(database_config_file)['test']
     ActiveRecord::Base.establish_connection(database_config_test)
   end
   config.expect_with :rspec do |expectations|
@@ -106,3 +101,8 @@ RSpec.configure do |config|
   #   # as the one that triggered the failure.
   #   Kernel.srand config.seed
 end
+
+SimpleCov.start do
+  add_filter '/spec/'
+end
+SimpleCov.minimum_coverage 90
