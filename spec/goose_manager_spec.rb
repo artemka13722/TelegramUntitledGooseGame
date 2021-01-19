@@ -4,6 +4,7 @@ require_relative './../core/goose_manager'
 require File.expand_path('../config/environment', __dir__)
 
 RSpec.describe GooseManager do
+  mng = described_class.new
   describe 'Checking database name' do
     it {
       expect(ActiveRecord::Base.connection_config[:database]).to match('telegram_test')
@@ -11,13 +12,18 @@ RSpec.describe GooseManager do
   end
 
   describe 'Checking goose creation' do
-    mng = described_class.new
     mng.create_goose(228, 'goose_easy', 'easy')
     goose_easy = mng.get_goose(228)
     mng.create_goose(229, 'goose_middle', 'middle')
     goose_middle = mng.get_goose(229)
     mng.create_goose(230, 'goose_hard', 'hard')
     goose_hard = mng.get_goose(230)
+    empt = mng.get_goose(9)
+
+    it {
+      expect(empt).to be_nil
+    }
+
     it {
       expect(goose_easy.name).to eq('goose_easy')
     }
@@ -93,10 +99,19 @@ RSpec.describe GooseManager do
     it {
       expect(goose_hard.money).to eq(10)
     }
+
+    d = User.find_by(telegram_id: 228)
+    mng.delete_all_goose(228)
+    d.delete
+    d = User.find_by(telegram_id: 229)
+    mng.delete_all_goose(229)
+    d.delete
+    d = User.find_by(telegram_id: 230)
+    mng.delete_all_goose(230)
+    d.delete
   end
 
   describe 'Checking goose checkers' do
-    mng = described_class.new
     mng.create_goose(322, 'goose', 'easy')
     goose = mng.get_goose(322)
     status_health1, message_health1 = mng.check_health(goose)
@@ -193,10 +208,13 @@ RSpec.describe GooseManager do
     it {
       expect(message_money2).to eq('За вашим гусем goose, выехали коллекторы...')
     }
+
+    d = User.find_by(telegram_id: 322)
+    mng.delete_all_goose(322)
+    d.delete
   end
 
   describe 'Checking goose stat changer' do
-    mng = described_class.new
     mng.create_goose(1488, 'goose', 'easy')
     goose = mng.get_goose(1488)
     mng.create_goose(1489, 'mod', 'easy')
@@ -206,6 +224,7 @@ RSpec.describe GooseManager do
     mod.fun = -3
     mod.weariness = 4
     mod.money = 5
+    mod.save
     mng.add_changes(goose, mod)
     it {
       expect(goose.health).to eq(99)
@@ -226,5 +245,76 @@ RSpec.describe GooseManager do
     it {
       expect(goose.money).to eq(105)
     }
+
+    d = User.find_by(telegram_id: 1488)
+    mng.delete_all_goose(1488)
+    d.delete
+    d = User.find_by(telegram_id: 1489)
+    mng.delete_all_goose(1489)
+    d.delete
+  end
+
+  describe 'Checking safe&load' do
+    mng.create_goose(333, 'output', 'easy')
+    output = mng.get_goose(333)
+    output.mana = 66
+    output.save
+    mng.save_goose(333)
+    input = mng.load_goose(333, 'output')
+    it {
+      expect(input.mana).to eq(66)
+    }
+
+    d = User.find_by(telegram_id: 333)
+    mng.delete_all_goose(333)
+    d.delete
+  end
+
+  describe 'Checking param_correct' do
+    it {
+      expect(mng.param_correct?(100, nil, 90)).to be false
+    }
+
+    it {
+      expect(mng.param_correct?(100, 90, nil)).to be true
+    }
+
+    it {
+      expect(mng.param_correct?(81, 80, 90)).to be true
+    }
+  end
+
+  describe 'Checking delete' do
+    mng.create_goose(444, 'test', 'easy')
+    mng.delete_all_goose(444)
+    it {
+      expect(mng.get_goose(444)).to be_nil
+    }
+
+    d = User.find_by(telegram_id: 444)
+    mng.delete_all_goose(444)
+    d.delete
+  end
+
+  describe 'Checking update_alive' do
+    mng.create_goose(1500, 'goose_a', 'easy')
+    goose_a = mng.get_goose(1500)
+    mng.create_goose(1501, 'goose_d', 'easy')
+    goose_d = mng.get_goose(1501)
+    goose_d.money = -51
+    it {
+      expect(mng.update_alive(goose_a)).to be_nil
+    }
+
+    it {
+      expect(mng.update_alive(goose_d)).to eq("За вашим гусем goose_d, выехали коллекторы...\n")
+    }
+
+    d = User.find_by(telegram_id: 1500)
+    mng.delete_all_goose(1500)
+    d.delete
+    d = User.find_by(telegram_id: 1501)
+    mng.delete_all_goose(1501)
+    d.delete
   end
 end

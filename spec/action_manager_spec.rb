@@ -13,19 +13,19 @@ RSpec.describe ActionManager do
     }
   end
 
-  describe 'Checking run_action' do
+  describe 'Checking param_correct' do
+    cond = ActionCondition.create
+    cond.health = true
+    cond.min = 5
+    gm.create_goose(322, 'goose', 'easy')
+    goose = gm.get_goose(322)
     it {
-      expect(mng).to respond_to(:run_action).with(2).argument
+      expect(mng.condition_correct?(goose, cond)).to be true
     }
-  end
 
-  describe 'Checking add_bonus' do
-    it {
-      expect(mng).to respond_to(:add_bonus).with(2).argument
-    }
-
-    it {
-      expect(mng).to respond_to(:add_bonuses).with(2).argument
-    }
+    d = User.find_by(telegram_id: 322)
+    gm.delete_all_goose(322)
+    d.delete
+    cond.delete
   end
 end

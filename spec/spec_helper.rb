@@ -22,7 +22,7 @@ RSpec.configure do |config|
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.
   config.before :suite do
-    database_config_file = File.open(File.expand_path('./../config/database.yml', __dir__))
+    database_config_file = File.open(File.expand_path('./../config/database.ci.yml', __dir__))
     database_config_test = Psych.load_file(database_config_file)['test']
     ActiveRecord::Base.establish_connection(database_config_test)
   end
@@ -105,4 +105,4 @@ end
 SimpleCov.start do
   add_filter '/spec/'
 end
-SimpleCov.minimum_coverage 43
+SimpleCov.minimum_coverage 75
