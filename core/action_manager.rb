@@ -16,7 +16,6 @@ class ActionManager
   def run_action(id, action)
     user = User.find_by(telegram_id: id)
     goose = Goose.find_by(name: user.current_goose_name)
-
     success_message = nil
     error_message = nil
     if goose.alive
@@ -28,9 +27,7 @@ class ActionManager
       success_message, error_message = add_bonuses(goose, action.bonus_actions)
       return error_message unless error_message.nil?
     end
-
     error_message = @goose_manager.update_alive(goose)
-
     if goose.alive
       success_message
     else
@@ -93,7 +90,6 @@ class ActionManager
         error_message << "#{bonus_condition.error_message}\n"
       end
     end
-
     success_message = nil
     if error_message.nil?
       success_message = "#{bonus_action.success_message}\n"
